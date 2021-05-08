@@ -6,7 +6,7 @@ import { Hydrate } from 'react-query/hydration'
 import { ReactQueryDevtools } from 'react-query/devtools'
 
 const MyApp: NextComponentType<AppContext, AppInitialProps, AppProps> = ({ Component, pageProps }) => {
-  const queryClientRef = React.useRef()
+  const queryClientRef = React.useRef<QueryClient>()
   if (!queryClientRef.current) {
     queryClientRef.current = new QueryClient()
   }
