@@ -1,17 +1,24 @@
 import Pokemon from '../components/Pokemon'
 import { getPoke } from '../api/getPoke'
+import { QueryClient } from 'react-query'
+import { dehydrate } from 'react-query/hydration'
 
-const Poke = (props) => {
+const Poke = () => {
   return (
-    <Pokemon data={props}/>
+    <Pokemon />
   )
 }
 
 export async function getServerSideProps() {
-  const response = await getPoke()
-  const { results } = response
+  const queryClient = new QueryClient()
   
-  return { props: { results } }
+  await queryClient.prefetchInfiniteQuery('poke', () => getPoke(), { staleTime: 1000 })
+
+  return {
+    props: {
+      dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
+    }
+  }
 }
 
 export default Poke

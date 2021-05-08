@@ -1,13 +1,22 @@
+import React from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { NextComponentType } from "next"
 import { AppContext, AppInitialProps, AppProps } from "next/app";
-
-const queryClient = new QueryClient()
+import { Hydrate } from 'react-query/hydration'
+import { ReactQueryDevtools } from 'react-query/devtools'
 
 const MyApp: NextComponentType<AppContext, AppInitialProps, AppProps> = ({ Component, pageProps }) => {
+  const queryClientRef = React.useRef()
+  if (!queryClientRef.current) {
+    queryClientRef.current = new QueryClient()
+  }
+
   return <>
-    <QueryClientProvider client={queryClient}>
-      <Component {...pageProps} />
+    <QueryClientProvider client={queryClientRef.current}>
+      <Hydrate state={pageProps.dehydratedState}>
+        <Component {...pageProps} />
+      </Hydrate>
+      <ReactQueryDevtools />
     </QueryClientProvider>
   </>
 }
