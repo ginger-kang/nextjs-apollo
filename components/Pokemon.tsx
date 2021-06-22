@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import { useInfiniteQuery, useQuery } from 'react-query'
-import { getPoke } from '../api/getPoke'
-import { useQueryClient } from 'react-query'
+import React from 'react'
+import { useInfiniteQuery } from 'react-query'
+import { getPoke } from '../api'
+import useIntersectionObserver from '../hooks/useIntersectionObserver'
 
 const Pokemon = () => {
-  const { data, fetchNextPage } = useInfiniteQuery('poke', 
+  const loadMoreButtonRef = React.useRef()
+
+  const { data, hasNextPage, fetchNextPage } = useInfiniteQuery('poke',
     ({ pageParam = '' }) => getPoke(pageParam), 
     {
       getNextPageParam: (lastPage) => {
@@ -14,20 +16,29 @@ const Pokemon = () => {
         }
         return lastOffset
       },
-      staleTime: 1000,
+      staleTime: 3000,
+      refetchOnWindowFocus: false,
     }
   )
+
+  useIntersectionObserver({
+    root: null,
+    target: loadMoreButtonRef,
+    onIntersect: fetchNextPage,
+    enabled: hasNextPage,
+  })
 
   return (
     <>
       <ul>
         {data.pages.map((page) => (
           page.results.map((poke) => (
-            <li key={poke.name}>{poke.name}</li>
+            <li key={poke.name} style={{ padding: '20px', fontWeight: 'bold'}}>{poke.name}</li>
           ))
         ))}
       </ul>
       <button onClick={() => fetchNextPage()}>Load More</button>
+      <div ref={loadMoreButtonRef}/>
     </>
   )
 }

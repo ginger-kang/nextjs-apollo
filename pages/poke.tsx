@@ -1,5 +1,5 @@
 import Pokemon from '../components/Pokemon'
-import { getPoke } from '../api/getPoke'
+import { getPoke } from '../api'
 import { QueryClient } from 'react-query'
 import { dehydrate } from 'react-query/hydration'
 
@@ -9,9 +9,10 @@ const Poke = () => {
   )
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx) {
   const queryClient = new QueryClient()
-  
+  console.log('ctx: ', ctx)
+
   await queryClient.prefetchInfiniteQuery('poke', () => getPoke(), { staleTime: 1000 })
 
   return {
