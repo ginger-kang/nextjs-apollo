@@ -1,10 +1,11 @@
 import React from 'react'
-import { useInfiniteQuery } from 'react-query'
+import { useInfiniteQuery, useQueryClient } from 'react-query'
 import { getPoke } from '../api'
 import useIntersectionObserver from '../hooks/useIntersectionObserver'
 
 const Pokemon = () => {
   const loadMoreButtonRef = React.useRef()
+  const queryClient = useQueryClient()
 
   const { data, hasNextPage, fetchNextPage } = useInfiniteQuery('poke',
     ({ pageParam = '' }) => getPoke(pageParam), 
@@ -20,6 +21,10 @@ const Pokemon = () => {
       refetchOnWindowFocus: false,
     }
   )
+
+  const inValidateQuery = () => {
+    queryClient.resetQueries('poke')
+  }
 
   useIntersectionObserver({
     root: null,
@@ -38,6 +43,7 @@ const Pokemon = () => {
         ))}
       </ul>
       <button onClick={() => fetchNextPage()}>Load More</button>
+      <button onClick={() => inValidateQuery()}>Invalidate</button>
       <div ref={loadMoreButtonRef}/>
     </>
   )
